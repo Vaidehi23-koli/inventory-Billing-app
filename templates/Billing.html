@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Billing</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static',
+      filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+        ✎ Stationery Shop
+        <span>Inventory & Billing</span>
+    </div>
+
+    <div class="menu">
+
+        <a href="/dashboard">
+            📊 Dashboard
+        </a>
+
+        <a href="/products">
+            📦 Products
+        </a>
+
+        <a href="/billing"
+           class="active">
+            🧾 Billing
+        </a>
+
+        <a href="/sales">
+            💰 Sales
+        </a>
+
+        <a href="/settings">
+            ⚙ Settings
+        </a>
+
+        <a href="/logout">
+            🚪 Logout
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="main">
+
+<div class="topbar">
+
+    Welcome, {{ session["username"] }}
+
+</div>
+
+
+<div class="content">
+
+<div class="page-title">
+
+<h1>Billing</h1>
+
+<p>
+Create a new bill
+</p>
+
+</div>
+
+
+<div class="billing-box">
+
+
+<div class="panel">
+
+<h2>Create Bill</h2>
+
+
+<form method="POST">
+
+
+<div class="form-group">
+
+<label>Customer Name</label>
+
+<input
+    type="text"
+    name="customer_name"
+    value="Walk-in Customer">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Select Product</label>
+
+<select name="product_id"
+        required>
+
+<option value="">
+Select Product
+</option>
+
+{% for product in products %}
+
+<option value="{{ product['id'] }}">
+
+{{ product["name"] }}
+-
+₹{{ product["price"] }}
+-
+Stock: {{ product["stock"] }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Quantity</label>
+
+<input
+    type="number"
+    name="quantity"
+    min="1"
+    required>
+
+</div>
+
+
+<button
+    type="submit"
+    class="btn btn-success">
+
+    Generate Bill
+
+</button>
+
+</form>
+
+</div>
+
+
+<div class="total-box">
+
+<h2>Bill Information</h2>
+
+<p>
+Select product and quantity to generate a bill.
+</p>
+
+<div class="total">
+
+Automatic Total Calculation
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
