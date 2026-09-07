@@ -3,11 +3,11 @@
 
 <head>
 
-<title>Products</title>
+    <title>Products</title>
 
-<link rel="stylesheet"
-      href="{{ url_for('static',
-      filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
 
 </head>
 
@@ -26,8 +26,7 @@
             📊 Dashboard
         </a>
 
-        <a href="/products"
-           class="active">
+        <a href="/products" class="active">
             📦 Products
         </a>
 
@@ -54,183 +53,266 @@
 
 <div class="main">
 
-<div class="topbar">
+    <div class="topbar">
+        Welcome, {{ session["username"] }}
+    </div>
 
-    Welcome, {{ session["username"] }}
 
-</div>
+    <div class="content">
 
+        <div class="page-title">
 
-<div class="content">
+            <h1>Products / Inventory</h1>
 
-<div class="page-title">
+            <p>
+                Manage stationery products and stock
+            </p>
 
-    <h1>Products / Inventory</h1>
+        </div>
 
-    <p>
-        Manage stationery products and stock
-    </p>
 
-</div>
+        <!-- ADD PRODUCT -->
 
+        <div class="panel">
 
-<div class="panel">
+            <h2>Add Product</h2>
 
-<h2>Add Product</h2>
+            <form method="POST">
 
-<form method="POST">
+                <div class="form-grid">
 
-<div class="form-grid">
 
-<div class="form-group">
+                    <div class="form-group">
 
-<label>Product Name</label>
+                        <label>Product Name</label>
 
-<input
-    type="text"
-    name="name"
-    placeholder="Example: Ball Pen"
-    required>
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder="Example: Ball Pen"
+                            required
+                        >
 
-</div>
+                    </div>
 
 
-<div class="form-group">
+                    <div class="form-group">
 
-<label>Category</label>
+                        <label>Category</label>
 
-<input
-    type="text"
-    name="category"
-    placeholder="Example: Pens"
-    required>
+                        <input
+                            type="text"
+                            name="category"
+                            placeholder="Example: Pens"
+                            required
+                        >
 
-</div>
+                    </div>
 
 
-<div class="form-group">
+                    <div class="form-group">
 
-<label>Price</label>
+                        <label>Price</label>
 
-<input
-    type="number"
-    name="price"
-    step="0.01"
-    required>
+                        <input
+                            type="number"
+                            name="price"
+                            step="0.01"
+                            required
+                        >
 
-</div>
+                    </div>
 
 
-<div class="form-group">
+                    <div class="form-group">
 
-<label>Stock</label>
+                        <label>Stock</label>
 
-<input
-    type="number"
-    name="stock"
-    required>
+                        <input
+                            type="number"
+                            name="stock"
+                            min="0"
+                            required
+                        >
 
-</div>
+                    </div>
 
 
-<div class="form-group">
+                    <div class="form-group">
 
-<label>Unit</label>
+                        <label>Unit</label>
 
-<select name="unit">
+                        <select name="unit">
 
-<option>Pcs</option>
-<option>Pack</option>
-<option>Box</option>
+                            <option>Pcs</option>
+                            <option>Pack</option>
+                            <option>Box</option>
 
-</select>
+                        </select>
 
-</div>
+                    </div>
 
-</div>
+                </div>
 
-<button
-    class="btn btn-primary"
-    type="submit">
 
-    Add Product
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
 
-</button>
+                    Add Product
 
-</form>
+                </button>
 
-</div>
+            </form>
 
+        </div>
 
-<div class="panel">
 
-<h2>Product List</h2>
+        <!-- PRODUCT LIST -->
 
-<table>
+        <div class="panel">
 
-<tr>
+            <h2>Product List</h2>
 
-<th>ID</th>
-<th>Name</th>
-<th>Category</th>
-<th>Price</th>
-<th>Stock</th>
-<th>Unit</th>
-<th>Action</th>
+            <table>
 
-</tr>
+                <tr>
 
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Unit</th>
+                    <th>Action</th>
 
-{% for product in products %}
+                </tr>
 
-<tr>
 
-<td>
-{{ product["id"] }}
-</td>
+                {% for product in products %}
 
-<td>
-{{ product["name"] }}
-</td>
+                <tr>
 
-<td>
-{{ product["category"] }}
-</td>
+                    <td>
+                        {{ product["id"] }}
+                    </td>
 
-<td>
-₹ {{ product["price"] }}
-</td>
 
-<td>
-{{ product["stock"] }}
-</td>
+                    <td>
+                        {{ product["name"] }}
+                    </td>
 
-<td>
-{{ product["unit"] }}
-</td>
 
-<td>
+                    <td>
+                        {{ product["category"] }}
+                    </td>
 
-<a
-    href="/delete_product/{{ product['id'] }}"
-    class="btn btn-danger"
-    onclick="return confirm('Delete this product?')">
 
-    Delete
+                    <!-- PRICE - ONLY DISPLAY PRICE -->
 
-</a>
+                    <td>
+                        ₹ {{ product["price"] }}
+                    </td>
 
-</td>
 
-</tr>
+                    <!-- STOCK - PLUS AND MINUS BUTTONS -->
 
-{% endfor %}
+                    <td>
 
-</table>
+                        <div class="stock-control">
 
-</div>
 
-</div>
+                            <!-- DECREASE STOCK -->
+
+                            <a
+                                href="{{ url_for(
+                                    'update_stock',
+                                    id=product['id'],
+                                    action='decrease'
+                                ) }}"
+                                class="stock-btn minus"
+                            >
+
+                                −
+
+                            </a>
+
+
+                            <!-- CURRENT STOCK -->
+
+                            <span class="stock-number">
+
+                                {{ product["stock"] }}
+
+                            </span>
+
+
+                            <!-- INCREASE STOCK -->
+
+                            <a
+                                href="{{ url_for(
+                                    'update_stock',
+                                    id=product['id'],
+                                    action='increase'
+                                ) }}"
+                                class="stock-btn plus"
+                            >
+
+                                +
+
+                            </a>
+
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- UNIT -->
+
+                    <td>
+                        {{ product["unit"] }}
+                    </td>
+
+
+                    <!-- DELETE -->
+
+                    <td>
+
+                        <a
+                            href="/delete_product/{{ product['id'] }}"
+                            class="btn btn-danger"
+                            onclick="return confirm('Delete this product?')"
+                        >
+
+                            Delete
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="7">
+
+                        No products available.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
