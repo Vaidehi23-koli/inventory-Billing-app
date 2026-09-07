@@ -3,48 +3,73 @@
 
 <head>
 
-<title>Sales</title>
+    <title>Sales</title>
 
-<link rel="stylesheet"
-      href="{{ url_for('static',
-      filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
 
 </head>
 
 <body>
 
+<!-- ================= SIDEBAR ================= -->
+
 <div class="sidebar">
 
     <div class="logo">
+
         ✎ Stationery Shop
-        <span>Inventory & Billing</span>
+
+        <span>
+            Inventory & Billing
+        </span>
+
     </div>
+
 
     <div class="menu">
 
         <a href="/dashboard">
+
             📊 Dashboard
+
         </a>
+
 
         <a href="/products">
+
             📦 Products
+
         </a>
 
+
         <a href="/billing">
+
             🧾 Billing
+
         </a>
+
 
         <a href="/sales"
            class="active">
+
             💰 Sales
+
         </a>
+
 
         <a href="/settings">
+
             ⚙ Settings
+
         </a>
 
+
         <a href="/logout">
+
             🚪 Logout
+
         </a>
 
     </div>
@@ -52,78 +77,250 @@
 </div>
 
 
+<!-- ================= MAIN ================= -->
+
 <div class="main">
 
-<div class="topbar">
 
-    Welcome, {{ session["username"] }}
+    <!-- TOP BAR -->
+
+    <div class="topbar">
+
+        Welcome, {{ session["username"] }}
+
+    </div>
+
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+
+        <!-- PAGE TITLE -->
+
+        <div class="page-title">
+
+            <h1>Sales</h1>
+
+            <p>
+                View and filter your sales history
+            </p>
+
+        </div>
+
+
+        <!-- ================= DATE FILTER ================= -->
+
+        <div class="panel">
+
+            <h2>Filter Sales by Date</h2>
+
+
+            <form method="GET"
+                  action="/sales">
+
+                <div class="date-filter">
+
+
+                    <!-- FROM DATE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            From Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="from_date"
+                            value="{{ from_date }}">
+
+                    </div>
+
+
+                    <!-- TO DATE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            To Date
+                        </label>
+
+                        <input
+                            type="date"
+                            name="to_date"
+                            value="{{ to_date }}">
+
+                    </div>
+
+
+                    <!-- FILTER BUTTON -->
+
+                    <div class="filter-button">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+
+                            Filter Sales
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- CLEAR BUTTON -->
+
+                    <div class="filter-button">
+
+                        <a
+                            href="/sales"
+                            class="btn btn-secondary">
+
+                            Clear
+
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================= TOTAL SALES ================= -->
+
+        <div class="sales-summary">
+
+            <div class="summary-card">
+
+                <h3>
+                    Total Sales
+                </h3>
+
+                <h1>
+                    ₹ {{ "%.2f"|format(total_sales) }}
+                </h1>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= SALES HISTORY ================= -->
+
+        <div class="panel">
+
+            <h2>Sales History</h2>
+
+
+            {% if from_date and to_date %}
+
+                <p class="date-result">
+
+                    Showing sales from
+
+                    <strong>
+                        {{ from_date }}
+                    </strong>
+
+                    to
+
+                    <strong>
+                        {{ to_date }}
+                    </strong>
+
+                </p>
+
+            {% endif %}
+
+
+            <table>
+
+                <tr>
+
+                    <th>Bill No.</th>
+
+                    <th>Customer</th>
+
+                    <th>Total Amount</th>
+
+                    <th>Date</th>
+
+                </tr>
+
+
+                {% if sales %}
+
+
+                    {% for sale in sales %}
+
+                    <tr>
+
+                        <td>
+
+                            {{ sale["bill_no"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ sale["customer_name"] }}
+
+                        </td>
+
+
+                        <td>
+
+                            ₹ {{ "%.2f"|format(sale["total"]) }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ sale["sale_date"] }}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                {% else %}
+
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="no-sales">
+
+                            No sales found for the selected dates.
+
+                        </td>
+
+                    </tr>
+
+
+                {% endif %}
+
+
+            </table>
+
+        </div>
+
+
+    </div>
 
 </div>
 
-
-<div class="content">
-
-<div class="page-title">
-
-<h1>Sales</h1>
-
-<p>
-View all bills and sales
-</p>
-
-</div>
-
-
-<div class="panel">
-
-<h2>Sales History</h2>
-
-<table>
-
-<tr>
-
-<th>Bill No.</th>
-
-<th>Customer</th>
-
-<th>Total Amount</th>
-
-<th>Date</th>
-
-</tr>
-
-
-{% for sale in sales %}
-
-<tr>
-
-<td>
-{{ sale["bill_no"] }}
-</td>
-
-<td>
-{{ sale["customer_name"] }}
-</td>
-
-<td>
-₹ {{ sale["total"] }}
-</td>
-
-<td>
-{{ sale["sale_date"] }}
-</td>
-
-</tr>
-
-{% endfor %}
-
-</table>
-
-</div>
-
-</div>
-
-</div>
 
 </body>
 
