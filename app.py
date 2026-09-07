@@ -875,6 +875,7 @@ def billing():
 @app.route("/sales")
 def sales():
 
+    # Check login
     if not login_required():
 
         return redirect(
@@ -883,30 +884,94 @@ def sales():
 
     user_id = session["user_id"]
 
+    # Get dates from the URL
+    from_date = request.args.get("from_date", "")
+    to_date = request.args.get("to_date", "")
+
     db = get_db()
 
-    # Show only current user's sales
+    # ---------------- DATE FILTER ----------------
 
-    sales_data = db.execute(
-        """
-        SELECT *
+    if from_date and to_date:
 
-        FROM sales
+        # Get sales between selected dates
+        sales_data = db.execute(
+            """
+            SELECT *
 
-        WHERE user_id = ?
+            FROM sales
 
-        ORDER BY id DESC
-        """,
-        (user_id,)
-    ).fetchall()
+            WHERE user_id = ?
+            AND DATE(sale_date) BETWEEN DATE(?) AND DATE(?)
+
+            ORDER BY sale_date DESC
+            """,
+            (
+                user_id,
+                from_date,
+                to_date
+            )
+        ).fetchall()
+
+        # Calculate total sales for selected dates
+        total_sales = db.execute(
+            """
+            SELECT COALESCE(SUM(total), 0) AS total
+
+            FROM sales
+
+            WHERE user_id = ?
+            AND DATE(sale_date) BETWEEN DATE(?) AND DATE(?)
+            """,
+            (
+                user_id,
+                from_date,
+                to_date
+            )
+        ).fetchone()["total"]
+
+    # ---------------- SHOW ALL SALES ----------------
+
+    else:
+
+        sales_data = db.execute(
+            """
+            SELECT *
+
+            FROM sales
+
+            WHERE user_id = ?
+
+            ORDER BY sale_date DESC
+            """,
+            (user_id,)
+        ).fetchall()
+
+        # Calculate all sales
+        total_sales = db.execute(
+            """
+            SELECT COALESCE(SUM(total), 0) AS total
+
+            FROM sales
+
+            WHERE user_id = ?
+            """,
+            (user_id,)
+        ).fetchone()["total"]
 
     db.close()
 
     return render_template(
         "sales.html",
-        sales=sales_data
-    )
 
+        sales=sales_data,
+
+        total_sales=total_sales,
+
+        from_date=from_date,
+
+        to_date=to_date
+    )
 
 # ---------------- SETTINGS ----------------
 
@@ -989,7 +1054,6 @@ def settings():
 @app.route("/update_stock/<int:id>/<action>")
 def update_stock(id, action):
 
-    # Check whether user is logged in
     if "user_id" not in session:
         return redirect(url_for("login"))
 
@@ -997,7 +1061,6 @@ def update_stock(id, action):
 
     db = get_db()
 
-    # Get the product belonging only to the current user
     product = db.execute("""
         SELECT *
         FROM products
@@ -1016,7 +1079,6 @@ def update_stock(id, action):
 
         return redirect(url_for("products"))
 
-    # Increase stock
     if action == "increase":
 
         db.execute("""
@@ -1031,10 +1093,8 @@ def update_stock(id, action):
 
         flash("Stock increased successfully!")
 
-    # Decrease stock
     elif action == "decrease":
 
-        # Prevent stock from becoming negative
         if product["stock"] > 0:
 
             db.execute("""
